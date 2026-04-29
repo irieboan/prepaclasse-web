@@ -4,10 +4,12 @@ import google.generativeai as genai
 
 # Configuration de l'IA avec ta clé secrète
 try:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel('models/gemini-1.5-flash')
-except:
-    st.error("Erreur : La clé API n'est pas configurée dans les Secrets de Streamlit.")
+    # On force l'utilisation de la version stable
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+    )
+except Exception as e:
+    st.error(f"Erreur de configuration : {e}")
 
 st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
