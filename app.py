@@ -4,8 +4,11 @@ import google.generativeai as genai
 
 # Configuration simplifiée pour éviter l'erreur 404
 try:
-    # On enlève "models/" ou toute autre mention de version
+    # On utilise le nom direct du modèle sans préfixe
     model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # On ajoute cette ligne pour forcer la version de l'API si besoin
+    # Mais normalement Gemini 1.5 s'en charge seul
 except Exception as e:
     st.error(f"Erreur de configuration : {e}")
     
