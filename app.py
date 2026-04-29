@@ -2,15 +2,13 @@ import streamlit as st
 from fpdf import FPDF
 import google.generativeai as genai
 
-# Configuration de l'IA avec ta clé secrète
+# Configuration simplifiée pour éviter l'erreur 404
 try:
-    # On force l'utilisation de la version stable
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-    )
+    # On enlève "models/" ou toute autre mention de version
+    model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
     st.error(f"Erreur de configuration : {e}")
-
+    
 st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
 st.title("📝 PrépaClasse CI")
