@@ -2,16 +2,21 @@ import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
 
-# 1. Configuration de l'IA (Version corrigée pour éviter le 404)
+# CONFIGURATION AUTO-ADAPTATIVE
 try:
-    # On initialise la configuration
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
     
-    # SOLUTION : On appelle le modèle sans le préfixe 'models/' 
-    # et on laisse le système choisir la version stable
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    # On cherche le premier modèle disponible qui permet de générer du texte
+    models = [m for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    if models:
+        # On prend le premier modèle trouvé (souvent gemini-1.5-flash ou pro)
+        model_name = models[0].name
+        model = genai.GenerativeModel(model_name)
+    else:
+        st.error("Aucun modèle n'a été trouvé pour cette clé API.")
 except Exception as e:
-    st.error(f"Problème de configuration : {e}")
+    st.error(f"Erreur de connexion : {e}")
+
 
 st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
