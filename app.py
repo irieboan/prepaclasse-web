@@ -2,13 +2,14 @@ import streamlit as st
 import google.generativeai as genai
 from fpdf import FPDF
 
-# 1. Connexion à l'IA (Correction de l'erreur 404)
+# CONFIGURATION CORRIGÉE
 try:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-    # Utilisation du nom de modèle le plus stable
+    # On utilise cette syntaxe précise pour éviter l'erreur 404
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
     st.error(f"Erreur de configuration : {e}")
+
 
 st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
