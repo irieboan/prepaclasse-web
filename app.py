@@ -1,67 +1,82 @@
 import streamlit as st
 from fpdf import FPDF
 
-# Configuration
-st.set_page_config(page_title="PrépaClasse CI", layout="centered")
+st.set_page_config(page_title="PrépaClasse CI", layout="wide")
 
 st.title("📝 PrépaClasse CI")
-st.subheader("Générateur de Fiches Pédagogiques APC")
+st.subheader("Générateur de Fiches Pédagogiques (Version Officielle)")
 
-# --- FORMULAIRE ---
-with st.container():
+# --- FORMULAIRE AVEC LES VRAIES DISCIPLINES ---
+with st.sidebar:
+    st.header("Paramètres")
     niveau = st.selectbox("Niveau", ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2"])
-    matiere = st.selectbox("Discipline", ["Français", "Mathématiques", "Éveil Scientifique", "EDHC", "AEC"])
+    
+    # Liste précise selon nos échanges
+    discipline = st.selectbox("Sous-Discipline", [
+        "Grammaire", "Conjugaison", "Orthographe", "Vocabulaire", "Lecture", 
+        "Exploitation de texte", "Expression Orale", "Science et Technologie", 
+        "Mathématiques", "EDHC", "Histoire-Géographie", "Arts Plastiques", "AEC"
+    ])
+    
     lecon = st.text_input("Titre de la Leçon")
     seance = st.text_input("Titre de la Séance")
 
 if st.button("🚀 GÉNÉRER LA FICHE DÉTAILLÉE"):
     if lecon and seance:
-        # Simulation de la rédaction détaillée par l'IA
-        st.success("Fiche rédigée avec succès !")
-        
-        # --- AFFICHAGE ÉCRAN ---
-        st.markdown("### I. PRÉSENTATION")
-        st.write("**Rappel / Mise en situation :** Le maître présente une situation pour susciter l'intérêt.")
+        # Ici on simule le contenu riche que l'IA doit produire
+        st.success("Génération en cours...")
 
+        # --- STRUCTURE DES 3 PHASES ---
+        
+        # I. PRÉSENTATION
+        st.markdown("### I. PRÉSENTATION")
+        st.write("**Rappel / Mise en situation :** [Contenu détaillé à venir]")
+
+        # II. DÉVELOPPEMENT (Tableau avec Stratégie AVANT Activités Élèves)
         st.markdown("### II. DÉVELOPPEMENT")
-        # Tableau avec l'ordre : Étapes > Activités Maître > Stratégies > Activités Élèves
-        st.markdown("""
-        | Étapes | Activités Maître (Questions) | Stratégies | Activités Élèves |
+        st.markdown(f"""
+        | Étapes | Activités Maître (Questions/Consignes) | Stratégies | Activités Élèves (Réponses attendues) |
         | :--- | :--- | :--- | :--- |
-        | **Manipulation** | Pose des questions précises sur l'expérience... | Travail de groupe | Observent et manipulent |
-        | **Synthèse** | "Que peut-on dire de... ?" | Travail Collectif | Concluent avec le maître |
-        | **Résumé** | Présente la trace écrite au tableau | Travail Collectif | Recopient dans le cahier |
+        | **Manipulation / Recherche** | Questions précises : 'Que voyez-vous ?' 'Comment faire pour...?' | Travail de groupe | Manipulent, observent et répondent. |
+        | **Synthèse** | Questions de jonction : 'Alors, que retient-on de nos essais ?' | Travail Collectif | Concluent et valident les résultats. |
+        | **Résumé** | Présentation de la trace écrite finale : 'A retenir...' | Travail Collectif | Participent et recopient le texte. |
         """)
 
+        # III. ÉVALUATION
         st.markdown("### III. ÉVALUATION")
-        st.write("**Exercice :** Propose une activité pour vérifier les acquis.")
+        st.write("**Exercice d'application :** [Exercice précis ici]")
 
-        # --- GÉNÉRATION DU VRAI PDF ---
+        # --- GÉNÉRATION DU PDF RÉELLEMENT REMPLI ---
         pdf = FPDF()
         pdf.add_page()
-        
-        # En-tête
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, f"FICHE PEDAGOGIQUE : {lecon.upper()}", ln=True, align='C')
-        pdf.set_font("Arial", '', 12)
-        pdf.cell(200, 10, f"Niveau : {niveau} | Discipline : {matiere}", ln=True, align='C')
-        pdf.ln(10)
+        pdf.set_font("Arial", 'B', 14)
+        pdf.cell(0, 10, f"FICHE DE PREPARATION : {niveau}", ln=True, align='C')
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(0, 8, f"Discipline : {discipline} | Leçon : {lecon}", ln=True)
+        pdf.cell(0, 8, f"Séance : {seance}", ln=True)
+        pdf.ln(5)
 
-        # Contenu
+        # Remplissage automatique des sections pour éviter le PDF vide
         sections = [
-            ("I. PRESENTATION", "Rappel et mise en situation de la leçon."),
-            ("II. DEVELOPPEMENT", "Phase de manipulation, synthèse des résultats et trace écrite (Résumé)."),
-            ("III. EVALUATION", "Exercices d'application et de vérification.")
+            ("I. PRESENTATION", "Rappel et mise en situation pédagogique."),
+            ("II. DEVELOPPEMENT", "Contient la manipulation, la synthèse et le résumé."),
+            ("III. EVALUATION", "Exercices de vérification des acquis.")
         ]
 
-        for titre, corps in sections:
-            pdf.set_font("Arial", 'B', 12)
-            pdf.cell(0, 10, titre, ln=True)
-            pdf.set_font("Arial", '', 11)
-            pdf.multi_cell(0, 8, corps)
-            pdf.ln(5)
+        for titre, texte in sections:
+            pdf.set_font("Arial", 'B', 11)
+            pdf.set_fill_color(240, 240, 240)
+            pdf.cell(0, 10, titre, ln=True, fill=True)
+            pdf.set_font("Arial", '', 10)
+            pdf.multi_cell(0, 8, texte)
+            pdf.ln(2)
 
         pdf_output = pdf.output(dest='S').encode('latin-1')
-        st.download_button("⬇️ TÉLÉCHARGER LA FICHE COMPLÈTE (PDF)", data=pdf_output, file_name=f"Fiche_{lecon}.pdf")
+        st.download_button(
+            label="⬇️ TÉLÉCHARGER LA FICHE PDF",
+            data=pdf_output,
+            file_name=f"Fiche_{discipline}_{lecon}.pdf",
+            mime="application/pdf"
+        )
     else:
-        st.error("Veuillez remplir le titre de la leçon.")
+        st.error("Veuillez remplir les informations manquantes.")
