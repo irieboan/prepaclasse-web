@@ -1,7 +1,7 @@
 import streamlit as st
 from fpdf import FPDF
 
-# Configuration de la page
+# Configuration
 st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
 st.title("📝 PrépaClasse CI")
@@ -14,47 +14,54 @@ with st.container():
     lecon = st.text_input("Titre de la Leçon")
     seance = st.text_input("Titre de la Séance")
 
-if st.button("🚀 GÉNÉRER LA FICHE OFFICIELLE"):
+if st.button("🚀 GÉNÉRER LA FICHE DÉTAILLÉE"):
     if lecon and seance:
-        st.success("Fiche générée selon la structure APC !")
+        # Simulation de la rédaction détaillée par l'IA
+        st.success("Fiche rédigée avec succès !")
         
-        # --- PHASE I : PRÉSENTATION ---
+        # --- AFFICHAGE ÉCRAN ---
         st.markdown("### I. PRÉSENTATION")
-        st.info("Rappel / Mise en situation")
+        st.write("**Rappel / Mise en situation :** Le maître présente une situation pour susciter l'intérêt.")
 
-        # --- PHASE II : DÉVELOPPEMENT ---
         st.markdown("### II. DÉVELOPPEMENT")
-        st.write("*(Inclut : Manipulation, Synthèse et Résumé)*")
-        
-        # Le tableau avec l'ordre : Étapes > Activités Maître > Stratégies > Activités Élèves
-        col1, col2, col3, col4 = st.columns([1, 2, 1, 2])
-        col1.write("**Étapes**")
-        col2.write("**Activités Maître**")
-        col3.write("**Stratégies**")
-        col4.write("**Activités Élèves**")
-        st.divider()
+        # Tableau avec l'ordre : Étapes > Activités Maître > Stratégies > Activités Élèves
+        st.markdown("""
+        | Étapes | Activités Maître (Questions) | Stratégies | Activités Élèves |
+        | :--- | :--- | :--- | :--- |
+        | **Manipulation** | Pose des questions précises sur l'expérience... | Travail de groupe | Observent et manipulent |
+        | **Synthèse** | "Que peut-on dire de... ?" | Travail Collectif | Concluent avec le maître |
+        | **Résumé** | Présente la trace écrite au tableau | Travail Collectif | Recopient dans le cahier |
+        """)
 
-        # --- PHASE III : ÉVALUATION ---
         st.markdown("### III. ÉVALUATION")
-        st.write("Exercices d'application immédiate.")
+        st.write("**Exercice :** Propose une activité pour vérifier les acquis.")
 
-        # --- BOUTON PDF ---
-        # Note : Assure-toi d'avoir créé le fichier requirements.txt avec 'fpdf' dedans
+        # --- GÉNÉRATION DU VRAI PDF ---
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(200, 10, f"FICHE PEDAGOGIQUE : {lecon}", ln=True, align='C')
-        pdf.ln(10)
         
-        pdf.set_font("Arial", 'B', 12)
-        pdf.cell(200, 10, "I. PRESENTATION", ln=True)
-        pdf.cell(200, 10, "II. DEVELOPPEMENT", ln=True)
-        pdf.cell(200, 10, "III. EVALUATION", ln=True)
+        # En-tête
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(200, 10, f"FICHE PEDAGOGIQUE : {lecon.upper()}", ln=True, align='C')
+        pdf.set_font("Arial", '', 12)
+        pdf.cell(200, 10, f"Niveau : {niveau} | Discipline : {matiere}", ln=True, align='C')
+        pdf.ln(10)
 
-        try:
-            pdf_output = pdf.output(dest='S').encode('latin-1')
-            st.download_button("⬇️ TÉLÉCHARGER LA FICHE (PDF)", data=pdf_output, file_name=f"Fiche_{lecon}.pdf")
-        except:
-            st.warning("Pour activer le téléchargement PDF, n'oublie pas d'ajouter le fichier requirements.txt sur GitHub.")
+        # Contenu
+        sections = [
+            ("I. PRESENTATION", "Rappel et mise en situation de la leçon."),
+            ("II. DEVELOPPEMENT", "Phase de manipulation, synthèse des résultats et trace écrite (Résumé)."),
+            ("III. EVALUATION", "Exercices d'application et de vérification.")
+        ]
+
+        for titre, corps in sections:
+            pdf.set_font("Arial", 'B', 12)
+            pdf.cell(0, 10, titre, ln=True)
+            pdf.set_font("Arial", '', 11)
+            pdf.multi_cell(0, 8, corps)
+            pdf.ln(5)
+
+        pdf_output = pdf.output(dest='S').encode('latin-1')
+        st.download_button("⬇️ TÉLÉCHARGER LA FICHE COMPLÈTE (PDF)", data=pdf_output, file_name=f"Fiche_{lecon}.pdf")
     else:
-        st.error("Veuillez remplir les champs.")
+        st.error("Veuillez remplir le titre de la leçon.")
