@@ -1,39 +1,81 @@
 import streamlit as st
 from fpdf import FPDF
 
-st.set_page_config(page_title="PrépaClasse CI", layout="wide")
+# Configuration
+st.set_page_config(page_title="PrépaClasse CI", layout="centered")
 
 st.title("📝 PrépaClasse CI")
-st.subheader("Générateur de Fiches Pédagogiques (Version Officielle)")
+st.subheader("Générateur de Fiches Pédagogiques APC")
 
-# --- FORMULAIRE AVEC LES VRAIES DISCIPLINES ---
-with st.sidebar:
-    st.header("Paramètres")
-    niveau = st.selectbox("Niveau", ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2"])
-    
-    # Liste précise selon nos échanges
-    discipline = st.selectbox("Sous-Discipline", [
-        "Grammaire", "Conjugaison", "Orthographe", "Vocabulaire", "Lecture", 
-        "Exploitation de texte", "Expression Orale", "Science et Technologie", 
-        "Mathématiques", "EDHC", "Histoire-Géographie", "Arts Plastiques", "AEC"
-    ])
-    
-    lecon = st.text_input("Titre de la Leçon")
-    seance = st.text_input("Titre de la Séance")
+# --- LE FORMULAIRE (BIEN VISIBLE AU CENTRE) ---
+st.markdown("### 1. Informations de la fiche")
+niveau = st.selectbox("Niveau", ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2"])
 
-if st.button("🚀 GÉNÉRER LA FICHE DÉTAILLÉE"):
+# Tes disciplines précises
+discipline = st.selectbox("Discipline / Sous-Discipline", [
+    "Grammaire", "Conjugaison", "Orthographe", "Vocabulaire", "Lecture", 
+    "Exploitation de texte", "Expression Orale", "Science et Technologie", 
+    "Mathématiques", "EDHC", "Histoire-Géographie", "Arts Plastiques", "AEC"
+])
+
+lecon = st.text_input("Titre de la Leçon (Ex: Les nombres de 0 à 1000)")
+seance = st.text_input("Titre de la Séance (Ex: Comparer et ranger)")
+
+# --- BOUTON DE GÉNÉRATION ---
+if st.button("🚀 GÉNÉRER LA FICHE MAINTENANT"):
     if lecon and seance:
-        # Ici on simule le contenu riche que l'IA doit produire
-        st.success("Génération en cours...")
+        st.divider()
+        st.success(f"Fiche en cours de rédaction pour : {lecon}")
 
-        # --- STRUCTURE DES 3 PHASES ---
+        # --- STRUCTURE OFFICIELLE ---
         
         # I. PRÉSENTATION
         st.markdown("### I. PRÉSENTATION")
-        st.write("**Rappel / Mise en situation :** [Contenu détaillé à venir]")
+        st.write(f"**Rappel / Mise en situation :** Le maître propose une activité de rappel sur la séance précédente et présente une situation de vie pour introduire la leçon sur {lecon}.")
 
-        # II. DÉVELOPPEMENT (Tableau avec Stratégie AVANT Activités Élèves)
+        # II. DÉVELOPPEMENT
         st.markdown("### II. DÉVELOPPEMENT")
+        st.markdown(f"""
+        | Étapes | Activités Maître (Questions) | Stratégies | Activités Élèves |
+        | :--- | :--- | :--- | :--- |
+        | **Manipulation** | Pose des questions pour explorer {seance}. | Travail de Groupe | Manipulent et répondent aux questions. |
+        | **Synthèse** | "Que peut-on conclure ?" | Travail Collectif | Établissent la règle avec le maître. |
+        | **Résumé** | **A RETENIR :** [Texte du résumé ici] | Travail Collectif | Recopient la trace écrite. |
+        """)
+
+        # III. ÉVALUATION
+        st.markdown("### III. ÉVALUATION")
+        st.write(f"**Exercice :** Propose un exercice d'application sur {seance}.")
+
+        # --- GÉNÉRATION DU PDF REMPLI ---
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(200, 10, f"FICHE : {niveau}", ln=True, align='C')
+        pdf.set_font("Arial", 'B', 12)
+        pdf.cell(200, 10, f"Discipline : {discipline}", ln=True)
+        pdf.cell(200, 10, f"Leçon : {lecon}", ln=True)
+        pdf.cell(200, 10, f"Séance : {seance}", ln=True)
+        pdf.ln(10)
+
+        # Contenu du PDF
+        sections = [
+            ("I. PRESENTATION", "Situation de rappel et mise en situation."),
+            ("II. DEVELOPPEMENT", "Phase de recherche, de synthèse et trace écrite."),
+            ("III. EVALUATION", "Exercice d'application immédiate.")
+        ]
+        for titre, texte in sections:
+            pdf.set_font("Arial", 'B', 12)
+            pdf.cell(0, 10, titre, 1, ln=True)
+            pdf.set_font("Arial", '', 11)
+            pdf.multi_cell(0, 10, texte)
+            pdf.ln(5)
+
+        pdf_output = pdf.output(dest='S').encode('latin-1')
+        st.download_button("⬇️ TÉLÉCHARGER LA FICHE PDF", data=pdf_output, file_name=f"Fiche_{lecon}.pdf")
+    else:
+        st.warning("⚠️ S'il te plaît, remplis le Titre de la leçon et de la séance avant d'appuyer sur le bouton.")
+
         st.markdown(f"""
         | Étapes | Activités Maître (Questions/Consignes) | Stratégies | Activités Élèves (Réponses attendues) |
         | :--- | :--- | :--- | :--- |
